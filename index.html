@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+<title>Calculadora de Arbitraje</title>
+
+<!-- PWA -->
+<link rel="manifest" href="manifest.json" />
+<meta name="theme-color" content="#0a0a0a" />
+
+<style>
+    body {
+        font-family: Arial;
+        padding: 20px;
+        background: #111;
+        color: #fff;
+    }
+    input {
+        width: 100%;
+        padding: 12px;
+        margin: 10px 0;
+        font-size: 18px;
+        border-radius: 8px;
+        border: none;
+    }
+    button {
+        width: 100%;
+        padding: 14px;
+        font-size: 20px;
+        background: #00aaff;
+        color: #fff;
+        border: none;
+        border-radius: 10px;
+        margin-top: 15px;
+        font-weight: bold;
+    }
+    #resultado {
+        margin-top: 20px;
+        padding: 20px;
+        background: #222;
+        border-radius: 10px;
+        font-size: 18px;
+    }
+</style>
+
+</head>
+<body>
+
+<h2>Calculadora de Arbitraje</h2>
+
+<input type="number" id="cuota1" placeholder="Cuota 1" step="0.01" />
+<input type="number" id="cuota2" placeholder="Cuota 2" step="0.01" />
+<input type="number" id="bank" placeholder="Bank total" />
+
+<button onclick="calcular()">Calcular</button>
+
+<div id="resultado"></div>
+
+<script>
+function calcular() {
+    const c1 = parseFloat(document.getElementById("cuota1").value);
+    const c2 = parseFloat(document.getElementById("cuota2").value);
+    const bank = parseFloat(document.getElementById("bank").value);
+
+    if (!c1 || !c2 || !bank) {
+        document.getElementById("resultado").innerHTML = "Completa todos los campos.";
+        return;
+    }
+
+    const inv1 = 1 / c1;
+    const inv2 = 1 / c2;
+    const sumaInv = inv1 + inv2;
+
+    const A = bank * (inv1 / sumaInv);
+    const B = bank - A;
+
+    const Aint = Math.round(A);
+    const Bint = bank - Aint;
+
+    const retorno1 = Aint * c1;
+    const retorno2 = Bint * c2;
+
+    const ganancia1 = retorno1 - bank;
+    const ganancia2 = retorno2 - bank;
+
+    const hayArbitraje = sumaInv < 1 ? "✔ SÍ hay arbitraje" : "❌ NO hay arbitraje";
+
+    document.getElementById("resultado").innerHTML = `
+        <b>${hayArbitraje}</b><br><br>
+
+        👉 Apostar <b>${Aint}</b> en cuota <b>${c1}</b><br>
+        👉 Apostar <b>${Bint}</b> en cuota <b>${c2}</b><br><br>
+
+        📌 Ganancia si gana cuota ${c1}: <b>${ganancia1.toFixed(2)}</b><br>
+        📌 Ganancia si gana cuota ${c2}: <b>${ganancia2.toFixed(2)}</b><br><br>
+
+        🔎 Suma de inversos: <b>${sumaInv.toFixed(4)}</b>
+    `;
+}
+</script>
+
+<script>
+if ("serviceWorker" in navigator) {
+    navigator.serviceWorker.register("service-worker.js");
+}
+</script>
+
+</body>
+</html>
